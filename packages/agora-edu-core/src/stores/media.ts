@@ -94,6 +94,16 @@ const networkQualityLevel = [
   'bad',
 ]
 
+const networkStatusText: Record<string, string> = {
+  99:'unknown',
+  1:'bad',
+  2:'poor',
+  3:'good',
+  4:'great',
+  5:'down'
+}
+
+
 const networkQualities: { [key: string]: string } = {
   'excellent': 'network-good',
   'good': 'network-good',
@@ -269,9 +279,21 @@ export class MediaStore {
       }
     }
 
+    this.mediaService.on('network-stats', (evt: any) => {
+      this.updateRxTxLostRate(evt.rxPacketLossRate, evt.txPacketLossRate);
+      this.updateRxNetworkQuality(networkStatusText[evt.downlinkNetworkQuality]);
+      this.updateTxNetworkQuality(networkStatusText[evt.uplinkNetworkQuality]);
+      //@ts-ignore
+      const duration = Date.now() - this.last || 0;
+      //@ts-ignore
+      this.last = Date.now();
+      console.log(evt, duration);
+    });
+
     this.mediaService.on('rtcStats', (evt: any) => {
       this.appStore.updateCpuRate(evt.cpuTotalUsage)
-      this.updateRxTxLostRate(evt.rxPacketLossRate, evt.txPacketLossRate)
+      
+      // this.updateRxTxLostRate(evt.rxPacketLossRate, evt.txPacketLossRate)
     })
     this.mediaService.on('track-ended', (evt: any) => {
       if (evt.tag === 'cameraTestRenderer' && this.appStore.pretestStore.cameraRenderer) {
@@ -415,9 +437,9 @@ export class MediaStore {
       // } else {
       //   qualityStr = networkQualityLevel[uplinkNetworkQuality]
       // }
-      this.updateNetworkQuality(qualityStr || defaultQuality)
-      this.updateRxNetworkQuality(networkQualityLevel[downlinkNetworkQuality] || defaultQuality)
-      this.updateTxNetworkQuality(networkQualityLevel[uplinkNetworkQuality] || defaultQuality)
+      // this.updateNetworkQuality(qualityStr || defaultQuality)
+      // this.updateRxNetworkQuality(networkQualityLevel[downlinkNetworkQuality] || defaultQuality)
+      // this.updateTxNetworkQuality(networkQualityLevel[uplinkNetworkQuality] || defaultQuality)
       const {
         remotePacketLoss: { audioStats, videoStats },
         localPacketLoss
@@ -427,7 +449,7 @@ export class MediaStore {
         this.cpuUsage = evt.cpuUsage
       }
       this._delay = evt.rtt
-      this.updateNetworkPacketLostRate(localPacketLoss)
+      // this.updateNetworkPacketLostRate(localPacketLoss)
       this.updateSignalStatusWithRemoteUser(this.userSignalStatus(mixSignalStatus))
     })
     this.mediaService.on('connection-state-change', (evt: any) => {

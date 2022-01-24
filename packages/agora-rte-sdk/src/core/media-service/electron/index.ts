@@ -7,6 +7,7 @@ import { EduLogger } from '../../logger';
 import { GenericErrorWrapper } from '../../utils/generic-error';
 import { truncate } from 'lodash';
 import { ClientRoleType } from 'agora-electron-sdk/types/Api/native_type';
+import { RtcNetworkQualityElectron } from './stats';
 
 export enum ElectronRTCRole {
   Host = 1,
@@ -269,6 +270,9 @@ export class AgoraElectronRTCWrapper extends EventEmitter implements IElectronRT
   lastMileDelay: number = 0
 
   published: boolean = false;
+
+
+  private _networkStats: RtcNetworkQualityElectron = new RtcNetworkQualityElectron();
 
   constructor(options: ElectronWrapperInitOption) {
     super();
@@ -558,6 +562,11 @@ export class AgoraElectronRTCWrapper extends EventEmitter implements IElectronRT
           videoStats: this._remoteVideoStats
         }
       })
+
+      if (args[0] === 0) {
+        this._networkStats.downlinkNetworkQuality = args[1];
+        this._networkStats.uplinkNetworkQuality = args[2];
+      }
     })
     this.client.on('remoteVideoStateChanged', (uid: number, state: number, reason: any) => {
       EduLogger.info('remoteVideoStateChanged ', reason, uid)
@@ -664,6 +673,10 @@ export class AgoraElectronRTCWrapper extends EventEmitter implements IElectronRT
       this.gatewayRtt = evt.gatewayRtt
       this.lastMileDelay = evt.lastmileDelay
       this.fire('rtcStats', evt)
+
+      this._networkStats.txVideoPacketLoss = evt.txPacketLossRate / 100.0;
+      this._networkStats.rxVideoPacketLoss = evt.rxPacketLossRate / 100.0;
+      this.fire("network-stats", this._networkStats.networkStats());
     })
     this.client.on('localAudioStats', (evt: any) => {
       this._localAudioStats = {
@@ -754,6 +767,11 @@ export class AgoraElectronRTCWrapper extends EventEmitter implements IElectronRT
           videoStats: this._remoteVideoStats
         }
       })
+
+      if (args[0] === 0) {
+        this._networkStats.downlinkNetworkQuality = args[1];
+        this._networkStats.uplinkNetworkQuality = args[2];
+      }
     })
     this.client.on('RemoteVideoStats', (evt: any) => {
       this._remoteVideoStats[evt.uid] = {
@@ -931,6 +949,10 @@ export class AgoraElectronRTCWrapper extends EventEmitter implements IElectronRT
       // only electron
       this.cpuUsage = evt.cpuAppUsage
       this.fire('rtcStats', evt)
+
+      this._networkStats.txVideoPacketLoss = evt.txPacketLossRate / 100.0;
+      this._networkStats.rxVideoPacketLoss = evt.rxPacketLossRate / 100.0;
+      this.fire("network-stats", this._networkStats.networkStats());
     })
   }
   

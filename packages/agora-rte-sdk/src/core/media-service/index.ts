@@ -176,6 +176,10 @@ export class MediaService extends EventEmitter implements IMediaService {
     //     volumes
     //   })
     // })
+
+    this.sdkWrapper.on('network-stats', (evt: any)=>{
+      this.fire('network-stats', evt);
+    });
     if (this.isElectron) {
       //@ts-ignore
       if (window.agoraBridge) {

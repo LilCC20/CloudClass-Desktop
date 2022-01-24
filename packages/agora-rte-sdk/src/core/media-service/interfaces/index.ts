@@ -487,3 +487,20 @@ export type MediaVolume = {
   uid: number,
   volume: number,
 }
+
+
+export interface NetworkStats {
+  rxPacketLossRate: number,
+  txPacketLossRate: number,
+  downlinkNetworkQuality?: AGNetworkQuality;
+  uplinkNetworkQuality?: AGNetworkQuality;
+}
+
+export enum AGNetworkQuality {
+  unknown = 99,
+  bad = 1,
+  poor = 2,
+  good = 3,
+  great = 4,
+  down = 5,
+}

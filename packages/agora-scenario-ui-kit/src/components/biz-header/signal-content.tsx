@@ -11,7 +11,7 @@ export const SignalContent: FC<SignalContentProps> = (monitor) => (
     { monitor.isNative ? <div className="biz-signal-content-row">
       <span className="biz-col padding-right-27">
         <label className="right-gap">{transI18n('signal.status')}:</label>
-        <span className="left-gap">{monitor.networkQuality}</span>
+        <span className="left-gap">{monitor.rxNetworkQuality}</span>
       </span>
     </div> : null}
     <div className="biz-signal-content-row margin-top-9">
