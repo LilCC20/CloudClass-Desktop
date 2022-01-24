@@ -42,6 +42,8 @@ export class EduScenarioAppStore {
   toast$: Subject<any> = new Subject<any>()
   dialog$: Subject<any> = new Subject<any>()
   seq$: Subject<any> = new Subject<any>()
+
+  uploadTimer?: ReturnType<typeof setInterval>
   
   @observable
   speakers: Map<number, number> = new Map();
@@ -188,6 +190,9 @@ export class EduScenarioAppStore {
 
     // const sdkDomain = config.sdkDomain.replace('%region%', this.params.config.region ?? 'cn')
 
+    // @ts-ignore
+    window.EduManager = EduManager
+
     if (platform === 'electron') {
       this.eduManager = new EduManager({
         vid: config.vid,
@@ -233,6 +238,11 @@ export class EduScenarioAppStore {
         }
       })
     }
+
+    this.uploadTimer = setInterval(() => {
+      const roomInfo = this.roomStore.roomInfo
+      EduManager.uploadLog(roomInfo)
+    }, 10 * 60 * 1000)
 
     if (isEmpty(roomInfoParams)) {
       this.load()
@@ -444,6 +454,9 @@ export class EduScenarioAppStore {
   @action.bound
   async destroy() {
     await this.releaseRoom()
+    if (this.uploadTimer) {
+      clearInterval(this.uploadTimer)
+    }
   }
 
   @action.bound

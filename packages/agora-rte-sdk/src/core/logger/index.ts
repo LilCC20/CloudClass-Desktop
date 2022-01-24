@@ -125,13 +125,13 @@ export class EduLogger {
     window.console = console;
   }
 
-  static async uploadElectronLog(roomId: any) {
+  static async uploadElectronLog(roomInfo: any) {
     //@ts-ignore
     if (window.doGzip) {
       //@ts-ignore
       let file = await window.doGzip();
       const res = await this.logUploader.uploadZipLogFile(
-        roomId,
+        roomInfo,
         file
       )
       return res;
@@ -143,14 +143,14 @@ export class EduLogger {
     return +Date.now()
   }
 
-  static async enableUpload(roomUuid: string, isElectron: boolean) {
+  static async enableUpload(roomInfo: any, isElectron: boolean) {
     const ids = [];
     // Upload Electron log
     if (isElectron) {
-      ids.push(await this.uploadElectronLog(roomUuid))
+      ids.push(await this.uploadElectronLog(roomInfo))
     }
     // Web upload log
-    ids.push(await this.uploadLog(roomUuid))
+    ids.push(await this.uploadLog(roomInfo))
     return ids.join("#")
   }
 
@@ -158,8 +158,8 @@ export class EduLogger {
 
   }
 
-  static async uploadLog(roomId: string) {
-    console.log('[LOG] [upload] roomId: ', roomId)
+  static async uploadLog(roomInfo: any) {
+    console.log('[LOG] [upload] roomInfo: ', {...roomInfo})
     let logs: any[] = []
     await db.logs.each((e: any) => logs.push(e))
     const logsStr = logs
@@ -172,7 +172,7 @@ export class EduLogger {
     const file = new File([logsStr], `${now}`)
     
     let res: any = await this.logUploader.uploadLogFile(
-      roomId,
+      roomInfo,
       file,
     )
 
