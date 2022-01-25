@@ -238,7 +238,7 @@ export class EduScenarioAppStore {
         }
       })
     }
-
+    
     this.uploadTimer = setInterval(() => {
       const roomInfo = this.roomStore.roomInfo
       EduManager.uploadLog(roomInfo)
@@ -305,6 +305,8 @@ export class EduScenarioAppStore {
     this.allExtApps = this.params.config.extApps || []
 
     this._screenVideoRenderer = undefined
+
+    EduManager.uploadLog(this.roomStore.roomInfo)
   }
 
   @computed
@@ -454,6 +456,8 @@ export class EduScenarioAppStore {
   @action.bound
   async destroy() {
     await this.releaseRoom()
+    const roomInfo = this.roomStore.roomInfo
+    EduManager.uploadLog(roomInfo)
     if (this.uploadTimer) {
       clearInterval(this.uploadTimer)
     }
