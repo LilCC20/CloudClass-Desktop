@@ -456,6 +456,13 @@ export class EduScenarioAppStore {
   @action.bound
   async destroy() {
     await this.releaseRoom()
+    if (this.uploadTimer) {
+      clearInterval(this.uploadTimer)
+    }
+  }
+
+  @action.bound
+  async clearUpload() {
     const roomInfo = this.roomStore.roomInfo
     EduManager.uploadLog(roomInfo)
     if (this.uploadTimer) {

@@ -1798,6 +1798,7 @@ export class RoomStore extends SimpleInterval {
         })
         if(durationToClose > 0) {
           // durationToClose > 0 means not yet closed
+          this.appStore.clearUpload()
           this.appStore.fireToast('toast.class_is_end',{
             reason: durationToClose
           });
