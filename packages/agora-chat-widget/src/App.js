@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import { useHistory } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import store from './redux/store'
-import { isLogin, roomMessages, roomUserCount, qaMessages, userMute, roomAllMute, extData, roomUsers, clearStore, setStateListner, roomAdmins } from './redux/aciton'
+import { isLogin, roomMessages, roomUserCount, qaMessages, userMute, roomAllMute, extData, roomUsers, clearStore, setStateListner, roomAdmins,resetPage } from './redux/aciton'
 import WebIM, { initIMSDK } from './utils/WebIM';
 import LoginIM from './api/login'
 import { joinRoom, getRoomInfo, getRoomNotice, getRoomWhileList, getRoomUsers } from './api/chatroom'
@@ -91,7 +91,7 @@ const App = function (props) {
       store.dispatch(roomAllMute(false))
     }
   }, [isRoomAllMute])
-  let arr = []
+  let arr = useRef([]);
   let intervalId;
   const createListen = (new_IM_Data, appkey) => {
     WebIM.conn.listen({
@@ -177,13 +177,16 @@ const App = function (props) {
             if (roomOwner === message.from) return
             if (message.from === "系统管理员") return
             // getRoomUsers(1, ROOM_PAGESIZE, message.gid);
-            arr.push(message.from)
-            intervalId && clearInterval(intervalId);
-            intervalId = setTimeout(() => {
-              let users = _.cloneDeep(arr);
-              arr = [];
-              getUserInfo(users)
-            }, 500);
+            arr.current.push(message.from)
+            if(!intervalId) {
+              intervalId = setTimeout(() => {
+                let users = _.cloneDeep(arr.current);
+                arr.current = [];
+                getUserInfo(users);
+                intervalId = null
+              }, 1000);
+            }
+            
             let ary = []
             roomUserList.map((v, k) => {
               ary.push(v)
@@ -200,6 +203,7 @@ const App = function (props) {
 
             // 移除成员
             store.dispatch(roomUsers(message.from, 'removeMember'))
+            store.dispatch(resetPage(true))
             break;
           case "updateAnnouncement":
             getRoomNotice(message.gid)
