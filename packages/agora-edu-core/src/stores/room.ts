@@ -1784,7 +1784,6 @@ export class RoomStore extends SimpleInterval {
       } catch (err) {
         EduLogger.info("appStore.destroyRoom failed: ", err.message)
       }
-      this.appStore.clearUpload()
       this.appStore.fireDialog('room-end-notice', {
         state
       })

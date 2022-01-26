@@ -445,6 +445,7 @@ export class EduScenarioAppStore {
       reportService.stopHB()
       reportServiceV2.reportApaasUserQuit(new Date().getTime(), 0);
       this.resetStates()
+      this.clearUpload()
     } catch (err) {
       this.resetStates()
       const exception = GenericErrorWrapper(err)
@@ -456,9 +457,6 @@ export class EduScenarioAppStore {
   @action.bound
   async destroy() {
     await this.releaseRoom()
-    if (this.uploadTimer) {
-      clearInterval(this.uploadTimer)
-    }
   }
 
   @action.bound
