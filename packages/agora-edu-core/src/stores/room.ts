@@ -1784,6 +1784,7 @@ export class RoomStore extends SimpleInterval {
       } catch (err) {
         EduLogger.info("appStore.destroyRoom failed: ", err.message)
       }
+      this.appStore.clearUpload()
       this.appStore.fireDialog('room-end-notice', {
         state
       })
@@ -1798,7 +1799,7 @@ export class RoomStore extends SimpleInterval {
         })
         if(durationToClose > 0) {
           // durationToClose > 0 means not yet closed
-          this.appStore.clearUpload()
+          // this.appStore.clearUpload()
           this.appStore.fireToast('toast.class_is_end',{
             reason: durationToClose
           });
