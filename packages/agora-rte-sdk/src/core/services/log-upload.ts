@@ -59,10 +59,7 @@ export class LogUpload {
     this.appID = params.appId
   }
   
-  async fetchStsToken(roomId: string, fileExt: string) {
-
-    const _roomId = roomId ? roomId : 0
-
+  async fetchStsToken(roomInfo: any, fileExt: string) {
     let timestamp = new Date().getTime()
     let body = {
       appId: this.appID,
@@ -72,7 +69,7 @@ export class LogUpload {
       fileExt: fileExt,
       platform: platform,
       tag: {
-        roomId: _roomId,
+        ...roomInfo
       },
     }
 
@@ -102,10 +99,10 @@ export class LogUpload {
   }
 
   async uploadZipLogFile(
-    roomId: string,
+    roomInfo: any,
     file: any
   ) {
-    const res = await this.uploadToOss(roomId, file, 'zip')
+    const res = await this.uploadToOss(roomInfo, file, 'zip')
     return res;
   }
 
@@ -129,15 +126,15 @@ export class LogUpload {
 
   // upload log
   async uploadLogFile(
-    roomId: string,
+    roomInfo: any,
     file: any
   ) {
-    const res = await this.uploadToOss(roomId, file, 'log')
-    await this.uploadCefLogFile(roomId)
+    const res = await this.uploadToOss(roomInfo, file, 'log')
+    // await this.uploadCefLogFile(roomId)
     return res;
   }
 
-  async uploadToOss(roomId: string, file: any, ext: string) {
+  async uploadToOss(roomInfo: any, file: any, ext: string) {
     let {
       bucketName,
       callbackBody,
@@ -146,7 +143,7 @@ export class LogUpload {
       accessKeySecret,
       securityToken,
       ossKey
-    } = await this.fetchStsToken(roomId, ext);
+    } = await this.fetchStsToken(roomInfo, ext);
     const ossParams = {
       bucketName,
       callbackBody,

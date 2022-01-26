@@ -61,6 +61,7 @@ export class MediaService extends EventEmitter implements IMediaService {
         this.electron.setAddonLogPath({ logPath, videoSourceLogPath })
         this.electron.enableLogPersist()
       })
+      this.electron.enableLogPersist()
     } else {
       this.sdkWrapper = new AgoraWebRtcWrapper({
         uploadLog: true,
@@ -176,6 +177,10 @@ export class MediaService extends EventEmitter implements IMediaService {
     //     volumes
     //   })
     // })
+
+    this.sdkWrapper.on('network-stats', (evt: any)=>{
+      this.fire('network-stats', evt);
+    });
     if (this.isElectron) {
       //@ts-ignore
       if (window.agoraBridge) {

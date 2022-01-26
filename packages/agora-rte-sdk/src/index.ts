@@ -88,5 +88,5 @@ export type {
   UserStreamResponseData,
   UserStreamList,
   JoinRoomResponseData,
-  EduClassroomInitOption,
+  EduClassroomInitOption
 } from './core/services/interface';

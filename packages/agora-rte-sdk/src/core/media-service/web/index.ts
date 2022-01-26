@@ -5,6 +5,7 @@ import { IWebRTCWrapper, WebRtcWrapperInitOption, CameraOption, MicrophoneOption
 import { GenericErrorWrapper } from '../../utils/generic-error';
 import { convertUid, paramsConfig } from '../utils';
 import { AgoraWebStreamCoordinator } from './coordinator';
+import { RtcNetworkQualityWeb } from './stats'
 
 type MediaSendPacketStats = Pick<LocalAudioTrackStats, 'sendPackets' | 'sendPacketsLost'>;
 
@@ -93,6 +94,9 @@ export class AgoraWebRtcWrapper extends EventEmitter implements IWebRTCWrapper {
   audioDeviceConfig: Map<'microphoneTestTrack' | 'microphoneTrack', any> = new Map()
   audioTrackPublished: Map<string, boolean> = new Map()
   videoTrackPublished: Map<string, boolean> = new Map()
+
+  
+  private _networkStats: RtcNetworkQualityWeb = new RtcNetworkQualityWeb();
 
   get microphoneTrack(): IMicrophoneAudioTrack {
     return this.audioTrackMap.get('microphoneTrack')!
@@ -594,6 +598,25 @@ export class AgoraWebRtcWrapper extends EventEmitter implements IWebRTCWrapper {
           videoStats
         }
       })
+
+      this._networkStats.uplinkNetworkQuality = evt.uplinkNetworkQuality;
+      this._networkStats.downlinkNetworkQuality = evt.downlinkNetworkQuality;
+
+      let totalLoss = 0,
+        totalPacket = 0;
+      let remoteStatsValues = Object.values(videoStats);
+      for (let s of remoteStatsValues) {
+        totalLoss += s.receivePacketsLost;
+        totalPacket += s.receivePackets;
+      }
+
+      this._networkStats.txVideoPacketLoss = localVideoStats.sendPacketsLost / localVideoStats.sendPackets;
+      
+      if (remoteStatsValues.length > 0) {
+        this._networkStats.rxVideoPacketLoss = totalLoss / totalPacket;
+      }
+
+      this.fire('network-stats', this._networkStats.networkStats());
     })
     client.on('volume-indicator', (result: AgoraWebVolumeResult[]) => {
       let totalVolume = 0
