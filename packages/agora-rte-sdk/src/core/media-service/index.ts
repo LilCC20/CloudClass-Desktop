@@ -61,6 +61,7 @@ export class MediaService extends EventEmitter implements IMediaService {
         this.electron.setAddonLogPath({ logPath, videoSourceLogPath })
         this.electron.enableLogPersist()
       })
+      this.electron.enableLogPersist()
     } else {
       this.sdkWrapper = new AgoraWebRtcWrapper({
         uploadLog: true,
